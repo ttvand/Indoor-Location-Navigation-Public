@@ -1,0 +1,12 @@
+## Steps to obtain the approximate winning submission
+1. Create a project folder on a disk with at least 150GB of free space. Create a "Data" subfolder in your project folder. This will be referred to as "your data folder" in what follows.
+1. Download the cleaned raw data from [here](https://www.kaggle.com/tomokikmogura/indoor-location-navigation-path-files?select=train) and extract it into your data folder.
+1. Add your data folder to line 17 in utils.py
+1. Run main.py
+  
+  
+  
+  
+  
+  
+  
