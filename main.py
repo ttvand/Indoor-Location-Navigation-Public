@@ -4,10 +4,11 @@ import sys
 sys.path.insert(0, './src')
 
 import meta_file_preprocessing
+import reshape_reference_preprocessed
 import utils
 
 data_copy_files = [
-    ('sample_submission.csv', ''),
+    ('sample_submission.csv', 'submissions'),
     ('submission_cost_minimization.csv', 'submissions'),
     ]
 
@@ -16,8 +17,10 @@ def main(mode):
   utils.copy_data_files(data_copy_files)
   
   # Preparation of base model dependencies
-  import pdb; pdb.set_trace()
   meta_file_preprocessing.run()
+  reshape_reference_preprocessed.run()
+  import pdb; pdb.set_trace()
+  x=1
   
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()

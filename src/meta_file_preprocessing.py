@@ -129,7 +129,8 @@ def run(overwrite_summary=False):
   data_folder = utils.get_data_folder()
   file_summaries = []
   
-  sample_submission = pd.read_csv(data_folder / "sample_submission.csv")
+  sample_submission = pd.read_csv(data_folder / "submissions" / (
+    "sample_submission.csv"))
   sample_submission_counts = {}
   all_sites = []
   for s in sample_submission.site_path_timestamp:
@@ -146,7 +147,7 @@ def run(overwrite_summary=False):
     df = pd.read_csv(summary_path)
   else:
     for mode in ["train", "test"]:
-      main_folder = data_folder / mode
+      main_folder = data_folder / mode / mode
       main_data_folders_or_files = sorted(main_folder.iterdir())
       if mode == "train":
         # Loop over all train data and extract the site ID
@@ -164,7 +165,7 @@ def run(overwrite_summary=False):
             sub_sub_files = sorted(sub_sub_path.iterdir())
             sub_sub_files = [s for s in sub_sub_files if s.suffix == ".txt"]
             for e in sub_sub_files:
-              print(len(file_summaries))
+              print(f"{len(file_summaries)+1} of 27550")
               # file_path = sub_sub_path / e
               file_path = e
               file_summary, site_id, complete_file = get_file_summary(
@@ -188,7 +189,8 @@ def run(overwrite_summary=False):
         ]
         for e in main_data_folders_or_files:
           site_id = None
-          print(len(file_summaries))
+          import pdb; pdb.set_trace()
+          print(f"{len(file_summaries)+1} of 27550")
           # file_path = main_folder / e
           file_path = e
           file_summary, site_id, _ = get_file_summary(
@@ -200,6 +202,7 @@ def run(overwrite_summary=False):
               e,
               sample_submission_counts,
               test_sites,
+              data_folder
           )
   
           file_summaries.append(file_summary)
