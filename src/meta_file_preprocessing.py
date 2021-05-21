@@ -2,13 +2,9 @@ import numpy as np
 import pandas as pd
 import utils
 
-overwrite_summary = False
-data_folder = utils.get_data_folder()
-file_summaries = []
-
 
 def get_file_summary(file_path, site_id, mode, f, sub_sub_ext, e,
-                     sample_submission_counts, test_sites):
+                     sample_submission_counts, test_sites, data_folder):
   with open(file_path, "r", encoding="utf-8") as file:
     lines = file.readlines()
     # First line - extract start time
@@ -129,96 +125,100 @@ def get_file_summary(file_path, site_id, mode, f, sub_sub_ext, e,
 
   return file_summary, site_id, complete_file
 
-
-sample_submission = pd.read_csv(data_folder / "sample_submission.csv")
-sample_submission_counts = {}
-all_sites = []
-for s in sample_submission.site_path_timestamp:
-  all_sites.append(s.split("_")[0])
-  file_name = s.split("_")[1]
-  if file_name in sample_submission_counts:
-    sample_submission_counts[file_name] += 1
-  else:
-    sample_submission_counts[file_name] = 1
-test_sites = list(set(all_sites))
-
-summary_path = data_folder / "file_summary.csv"
-if summary_path.is_file() and not overwrite_summary:
-  df = pd.read_csv(summary_path)
-else:
-  for mode in ["train", "test"]:
-    main_folder = data_folder / mode
-    main_data_folders_or_files = sorted(main_folder.iterdir())
-    if mode == "train":
-      # Loop over all train data and extract the site ID
-      for f in main_data_folders_or_files:
-        # sub_folder = main_folder / f
-        sub_folder = f
-        sub_sub_folders = sorted(sub_folder.iterdir())
-        sub_sub_folders = [
-            s for s in sub_sub_folders if not s.suffix == ".pickle"
-        ]
-        site_id = None
-        for sub_sub_ext in sub_sub_folders:
-          # sub_sub_path = sub_folder / sub_sub_ext
-          sub_sub_path = sub_sub_ext
-          sub_sub_files = sorted(sub_sub_path.iterdir())
-          sub_sub_files = [s for s in sub_sub_files if s.suffix == ".txt"]
-          for e in sub_sub_files:
-            print(len(file_summaries))
-            # file_path = sub_sub_path / e
-            file_path = e
-            file_summary, site_id, complete_file = get_file_summary(
-                file_path,
-                site_id,
-                mode,
-                f,
-                sub_sub_ext,
-                e,
-                None,
-                test_sites,
-            )
-
-            if complete_file:
-              # The file train/5cd56b83e2acfd2d33b5cab0/B2/5cf72539e9d9c9000852f45b.txt seems cut short
-              file_summaries.append(file_summary)
+def run(overwrite_summary=False):
+  data_folder = utils.get_data_folder()
+  file_summaries = []
+  
+  sample_submission = pd.read_csv(data_folder / "sample_submission.csv")
+  sample_submission_counts = {}
+  all_sites = []
+  for s in sample_submission.site_path_timestamp:
+    all_sites.append(s.split("_")[0])
+    file_name = s.split("_")[1]
+    if file_name in sample_submission_counts:
+      sample_submission_counts[file_name] += 1
     else:
-      main_data_folders_or_files = [
-          s for s in main_data_folders_or_files if s.suffix == ".txt"
-      ]
-      for e in main_data_folders_or_files:
-        site_id = None
-        print(len(file_summaries))
-        # file_path = main_folder / e
-        file_path = e
-        file_summary, site_id, _ = get_file_summary(
-            file_path,
-            site_id,
-            mode,
-            None,
-            None,
-            e,
-            sample_submission_counts,
-            test_sites,
-        )
-
-        file_summaries.append(file_summary)
-
-  df = pd.DataFrame(file_summaries)
-  df = df.astype({
-      "num_test_waypoints": "Int64",
-      "num_train_waypoints": "Int64",
-      "level": "Int64",
-      "first_last_wifi_time": "Int64",
-  })
-
-# # Potential subsequent run of the script
-# if not 'text_level' in df.columns:
-#   df['text_level'] = None
-#   for i in range(df.shape[0]):
-#     print(i)
-#     if df['mode'][i] == 'train':
-#       text_level = df['ext_path'][i].split('/')[2]
-#       df.loc[i, 'text_level'] = text_level
-
-df.to_csv(summary_path, index=False)
+      sample_submission_counts[file_name] = 1
+  test_sites = list(set(all_sites))
+  
+  summary_path = data_folder / "file_summary.csv"
+  if summary_path.is_file() and not overwrite_summary:
+    df = pd.read_csv(summary_path)
+  else:
+    for mode in ["train", "test"]:
+      main_folder = data_folder / mode
+      main_data_folders_or_files = sorted(main_folder.iterdir())
+      if mode == "train":
+        # Loop over all train data and extract the site ID
+        for f in main_data_folders_or_files:
+          # sub_folder = main_folder / f
+          sub_folder = f
+          sub_sub_folders = sorted(sub_folder.iterdir())
+          sub_sub_folders = [
+              s for s in sub_sub_folders if not s.suffix == ".pickle"
+          ]
+          site_id = None
+          for sub_sub_ext in sub_sub_folders:
+            # sub_sub_path = sub_folder / sub_sub_ext
+            sub_sub_path = sub_sub_ext
+            sub_sub_files = sorted(sub_sub_path.iterdir())
+            sub_sub_files = [s for s in sub_sub_files if s.suffix == ".txt"]
+            for e in sub_sub_files:
+              print(len(file_summaries))
+              # file_path = sub_sub_path / e
+              file_path = e
+              file_summary, site_id, complete_file = get_file_summary(
+                  file_path,
+                  site_id,
+                  mode,
+                  f,
+                  sub_sub_ext,
+                  e,
+                  None,
+                  test_sites,
+                  data_folder,
+              )
+  
+              if complete_file:
+                # The file train/5cd56b83e2acfd2d33b5cab0/B2/5cf72539e9d9c9000852f45b.txt seems cut short
+                file_summaries.append(file_summary)
+      else:
+        main_data_folders_or_files = [
+            s for s in main_data_folders_or_files if s.suffix == ".txt"
+        ]
+        for e in main_data_folders_or_files:
+          site_id = None
+          print(len(file_summaries))
+          # file_path = main_folder / e
+          file_path = e
+          file_summary, site_id, _ = get_file_summary(
+              file_path,
+              site_id,
+              mode,
+              None,
+              None,
+              e,
+              sample_submission_counts,
+              test_sites,
+          )
+  
+          file_summaries.append(file_summary)
+  
+    df = pd.DataFrame(file_summaries)
+    df = df.astype({
+        "num_test_waypoints": "Int64",
+        "num_train_waypoints": "Int64",
+        "level": "Int64",
+        "first_last_wifi_time": "Int64",
+    })
+  
+  # # Potential subsequent run of the script
+  # if not 'text_level' in df.columns:
+  #   df['text_level'] = None
+  #   for i in range(df.shape[0]):
+  #     print(i)
+  #     if df['mode'][i] == 'train':
+  #       text_level = df['ext_path'][i].split('/')[2]
+  #       df.loc[i, 'text_level'] = text_level
+  
+  df.to_csv(summary_path, index=False)

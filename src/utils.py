@@ -1,7 +1,9 @@
 import pickle
 import re
 from dataclasses import dataclass
+import pathlib
 from pathlib import Path
+import shutil
 from typing import Dict
 
 import numpy as np
@@ -858,3 +860,17 @@ def get_best_opt_error(preds):
 def load(path):
   with open(path, 'rb') as f:
     return pickle.load(f)
+  
+def copy_data_files(data_copy_files):
+  data_folder = get_data_folder()
+  repo_data_folder = pathlib.Path(__file__).parent.absolute().parent / 'data'
+  for f, e in data_copy_files:
+    if e:
+      target_folder = data_folder / e
+    else:
+      target_folder = data_folder
+    pathlib.Path(target_folder).mkdir(parents=True, exist_ok=True)
+    target_path = target_folder / f
+    if not target_path.is_file():
+      source_path = repo_data_folder / f
+      shutil.copy(source_path, target_path)
