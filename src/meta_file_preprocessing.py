@@ -147,7 +147,7 @@ def run(overwrite_summary=False):
     df = pd.read_csv(summary_path)
   else:
     for mode in ["train", "test"]:
-      main_folder = data_folder / mode / mode
+      main_folder = data_folder / mode
       main_data_folders_or_files = sorted(main_folder.iterdir())
       if mode == "train":
         # Loop over all train data and extract the site ID
@@ -189,7 +189,6 @@ def run(overwrite_summary=False):
         ]
         for e in main_data_folders_or_files:
           site_id = None
-          import pdb; pdb.set_trace()
           print(f"{len(file_summaries)+1} of 27550")
           # file_path = main_folder / e
           file_path = e

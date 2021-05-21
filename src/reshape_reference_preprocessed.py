@@ -256,10 +256,11 @@ def run(only_process_test_sites=True, overwrite_existing_processed=False,
     print(f"{i+1} of {df.shape[0]}")
     if not only_process_test_sites or df.test_site[i]:
       mode = df.ext_path[i].split('/')[0]
-      pickle_path = data_folder / mode / (
+      pickle_path = data_folder / (
           str(Path(df.ext_path[i]).with_suffix("")) + "_reshaped.pickle")
       parquet_path = parquet_folder / Path(df.ext_path[i]).with_suffix(
         ".parquet")
+      import pdb; pdb.set_trace()
       pathlib.Path(parquet_path.parent).mkdir(parents=True, exist_ok=True)
       if not pickle_path.exists() or overwrite_existing_processed:
         reshape_parquet(
