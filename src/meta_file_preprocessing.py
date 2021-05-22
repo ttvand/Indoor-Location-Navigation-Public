@@ -165,7 +165,7 @@ def run(overwrite_summary=False):
             sub_sub_files = sorted(sub_sub_path.iterdir())
             sub_sub_files = [s for s in sub_sub_files if s.suffix == ".txt"]
             for e in sub_sub_files:
-              print(f"{len(file_summaries)+1} of 27550")
+              print(f"{len(file_summaries)+1} of 27549")
               # file_path = sub_sub_path / e
               file_path = e
               file_summary, site_id, complete_file = get_file_summary(
@@ -189,7 +189,7 @@ def run(overwrite_summary=False):
         ]
         for e in main_data_folders_or_files:
           site_id = None
-          print(f"{len(file_summaries)+1} of 27550")
+          print(f"{len(file_summaries)+1} of 27549")
           # file_path = main_folder / e
           file_path = e
           file_summary, site_id, _ = get_file_summary(

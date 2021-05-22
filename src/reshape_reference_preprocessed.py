@@ -104,20 +104,7 @@ COL_NAMES = {
 def reshape_parquet(pickle_path, parquet_path, meta_info, file_id,
                     write_separate_wifi, data_folder, sample_sub_fns,
                     sample_sub_times):
-  try:
-    parquet_data = pd.read_parquet(parquet_path)
-  except:
-    import pdb; pdb.set_trace()
-    # Depending on how the reference preprocessed is extracted
-    parts = Path(parquet_path).parts
-    try:
-      # Path structure is different for test
-      parquet_path = os.sep.join(parts[:-3] + parts[-4:])
-      parquet_data = pd.read_parquet(parquet_path, engine="fastparquet")
-    except:
-      parquet_path = os.sep.join(parts[:-1] + parts[-2:])
-      parquet_data = pd.read_parquet(parquet_path, engine="fastparquet")
-
+  parquet_data = pd.read_parquet(parquet_path)
   types = parquet_data.column2
 
   all_vals = {}
@@ -249,6 +236,12 @@ def run(only_process_test_sites=True, overwrite_existing_processed=False,
   sample_sub_times = np.array(
       [int(sps.split('_')[2]) for sps in (submission.site_path_timestamp)])
   
+  # First check for the last file and abort if it already exists
+  last_pickle_path = data_folder / (
+      str(Path(df.ext_path.values[-1]).with_suffix("")) + "_reshaped.pickle")
+  if last_pickle_path.exists() and (not overwrite_existing_processed):
+    return
+  
   # Loop over all file paths and compare the parquet and pickle files one by
   # one
   for i in range(df.shape[0]):
@@ -258,9 +251,8 @@ def run(only_process_test_sites=True, overwrite_existing_processed=False,
       mode = df.ext_path[i].split('/')[0]
       pickle_path = data_folder / (
           str(Path(df.ext_path[i]).with_suffix("")) + "_reshaped.pickle")
-      parquet_path = parquet_folder / Path(df.ext_path[i]).with_suffix(
+      parquet_path = parquet_folder / mode / Path(df.ext_path[i]).with_suffix(
         ".parquet")
-      import pdb; pdb.set_trace()
       pathlib.Path(parquet_path.parent).mkdir(parents=True, exist_ok=True)
       if not pickle_path.exists() or overwrite_existing_processed:
         reshape_parquet(

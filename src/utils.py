@@ -519,7 +519,8 @@ def interpolate_wifi_trajectory(
 def get_test_waypoint_times(data_folder):
   test_waypoint_times_path = data_folder / "test_waypoint_times.pickle"
   if not test_waypoint_times_path.exists():
-    sample_submission = pd.read_csv(data_folder / "sample_submission.csv")
+    sample_submission = pd.read_csv(
+      data_folder / "submissions" / "sample_submission.csv")
 
     test_waypoint_times = {}
     for spt in sample_submission.site_path_timestamp.values:
@@ -533,7 +534,8 @@ def get_test_waypoint_times(data_folder):
       test_waypoint_times[k] = np.array(test_waypoint_times[k])
 
     with open(test_waypoint_times_path, "wb") as handle:
-      pickle.dump(test_waypoint_times, handle, protocol=pickle.HIGHEST_PROTOCOL)
+      pickle.dump(test_waypoint_times, handle,
+                  protocol=pickle.HIGHEST_PROTOCOL)
 
   with open(test_waypoint_times_path, "rb") as f:
     test_waypoint_times = pickle.load(f)
@@ -544,7 +546,8 @@ def get_test_waypoint_times(data_folder):
 def get_test_fns(data_folder):
   test_fns_ordered_path = data_folder / "test_fns_ordered.pickle"
   if not test_fns_ordered_path.exists():
-    sample_submission = pd.read_csv(data_folder / "sample_submission.csv")
+    sample_submission = pd.read_csv(
+      data_folder / "submissions", "sample_submission.csv")
 
     fn_counts = {}
     sites = []
@@ -649,8 +652,8 @@ def get_test_floors(data_folder, debug_test_floor_override=False):
 
 
 def convert_to_submission(data_folder, test_preds):
-  submission = pd.read_csv(data_folder / "submissions" /
-                           ("submission_snap_to_grid.csv"))
+  submission = pd.read_csv(
+    data_folder / "submissions" / "submission_cost_minimization.csv")
 
   for i, spt in enumerate(submission.site_path_timestamp.values):
     site, fn, ts = spt.split("_")
@@ -861,7 +864,15 @@ def load(path):
   with open(path, 'rb') as f:
     return pickle.load(f)
   
-def copy_data_files(data_copy_files):
+def copy_data_files():
+  data_copy_files = [
+    ('sample_submission.csv', 'submissions'),
+    ('submission_cost_minimization.csv', 'submissions'),
+    ('non_parametric_wifi - valid - 2021-03-30 09:14:44.csv', ''),
+    ('leaderboard_type.csv', ''),
+    ('test - 2021-05-15 05:19:44.csv', 'submissions'),
+    ]
+  
   data_folder = get_data_folder()
   repo_data_folder = pathlib.Path(__file__).parent.absolute().parent / 'data'
   for f, e in data_copy_files:
