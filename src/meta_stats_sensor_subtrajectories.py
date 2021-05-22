@@ -12,13 +12,15 @@ def run():
   try:
     with open(device_id_path, 'rb') as f:
       device_ids = pickle.load(f)
+    print("Extracting segment meta data (2/2)")
   except:
     device_ids = None
+    print("Extracting segment meta data (1/2)")
   device_ext = '_no_device' if device_ids is None else ''
   save_ext = '' if only_process_test_sites else '_all_sites'
   save_path = sensor_folder / ('meta' + save_ext + device_ext + '.csv')
   if save_path.is_file():
-    return
+    return device_ids is None
   summary_path = data_folder / 'file_summary.csv'
   df = pd.read_csv(summary_path)
   leaderboard_types_path = data_folder / 'leaderboard_type.csv'
@@ -95,3 +97,5 @@ def run():
         
   combined = pd.DataFrame(all_sub_trajectories)
   combined.to_csv(save_path, index=False)
+  
+  return device_ids is None

@@ -126,6 +126,7 @@ def get_file_summary(file_path, site_id, mode, f, sub_sub_ext, e,
   return file_summary, site_id, complete_file
 
 def run(overwrite_summary=False):
+  print("Extracting metadata")
   data_folder = utils.get_data_folder()
   file_summaries = []
   

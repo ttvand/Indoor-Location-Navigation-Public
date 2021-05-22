@@ -3,6 +3,7 @@ import pandas as pd
 import utils
 
 def run():
+  print("Creating validation set")
   require_valid_waypoints_in_train = True
   max_valid_unique_fraction = 0.4
   max_valid_unique_count_per_trajectory = 15

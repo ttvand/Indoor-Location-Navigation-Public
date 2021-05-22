@@ -13,6 +13,7 @@ import utils
 # instance based non parameteric model - This allows for a very simple
 # optimization free approach that makes no strong distribution assumptions
 def run(mode="test", consider_multiprocessing=True, overwrite_output=False):
+  print("Non-parametric WiFi model")
   models_group_name = 'non_parametric_wifi'
   overwrite_models = True
   recompute_grouped_data = not True

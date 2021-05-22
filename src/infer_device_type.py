@@ -5,6 +5,7 @@ import pickle
 import utils
 
 def run():
+  print("Inferring device ids")
   only_process_test_sites = True
   signature_dist_threshold = 0.5
   dist_scaler = np.array([

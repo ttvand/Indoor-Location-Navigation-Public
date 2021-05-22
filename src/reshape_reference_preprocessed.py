@@ -224,6 +224,7 @@ def reshape_parquet(pickle_path, parquet_path, meta_info, file_id,
 
 def run(only_process_test_sites=True, overwrite_existing_processed=False,
         write_separate_wifi=False):
+  print("Reshaping raw data")
   data_folder = utils.get_data_folder()
   parquet_folder = data_folder / "reference_preprocessed"
   summary_path = data_folder / "file_summary.csv"

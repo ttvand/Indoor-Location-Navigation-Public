@@ -361,6 +361,7 @@ def extract_floor_start_end(
   return site_results
 
 def run(mode):
+  print("Processing time leak (edge trajectories)")
   debug_site = [None, 0][0]
   use_multiprocessing = False
   test_preds_source = 'test - 2021-05-15 05:19:44.csv'

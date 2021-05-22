@@ -865,6 +865,7 @@ def load(path):
     return pickle.load(f)
   
 def copy_data_files():
+  print("Copying data files")
   data_copy_files = [
     ('sample_submission.csv', 'submissions'),
     ('submission_cost_minimization.csv', 'submissions'),

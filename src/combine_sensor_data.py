@@ -6,6 +6,7 @@ import pandas as pd
 import utils
 
 def run():
+  print("Combining sensor data")
   only_process_test_sites = True
   sensor_cols = ['time', 'acce', 'gyro', 'ahrs']
   
