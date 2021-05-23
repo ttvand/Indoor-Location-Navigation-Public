@@ -1,2 +1,17 @@
 
 *.pyc
+venv/
+data/submissions
+data/train
+data/test
+data/sensor_data
+data/processed
+data/sensor_dist_cv
+data/sensor_dist_valid
+data/sensor_dist_test
+data/sensor_mov_cv
+data/sensor_mov_valid
+data/sensor_mov_test
+data/sensor_mov2_valid
+data/sensor_mov2_test
+Data

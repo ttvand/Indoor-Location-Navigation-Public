@@ -16,6 +16,11 @@ import prepare_features_correct_sensor_preds
 import reshape_reference_preprocessed
 import sensor_errors_over_time_device
 import utils
+import agg_stats
+import model_gbm_wifi
+import model_sensor_dist
+import model_sensor_movement
+import model_sensor_movement2
 
 def main(mode, consider_multiprocessing):
   # Preparation of base model dependencies
@@ -29,6 +34,14 @@ def main(mode, consider_multiprocessing):
     meta_stats_sensor_subtrajectories.run() # Rerun with infered device ids
   
   # Base models
+  agg_stats.run()
+  model_gbm_wifi.prepare_data()
+  model_gbm_wifi.fit('valid') # -> data/gbm_wifi_{mode}_predictions.csv
+  model_sensor_dist.run('cv', fast=True) # -> data/sensor_dist_cv
+  model_sensor_dist.run(mode, fast=True) # -> data/sensor_dist_{mode}
+  model_sensor_movement.run('cv', fast=True) # -> data/sensor_mov_cv
+  model_sensor_movement.run(mode, fast=True) # -> data/sensor_mov_{mode}
+  model_sensor_movement2.run(mode, fast=True) # -> data/sensor_mov2_{mode}
   non_parametric_wifi_model.run(
     mode, consider_multiprocessing=consider_multiprocessing)
   
