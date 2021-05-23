@@ -51,7 +51,7 @@ def run(mode="test", consider_multiprocessing=True, overwrite_output=False):
   store_all_wifi_predictions = False
   store_full_wifi_predictions = not config['limit_train_near_waypoints'] # Required for the current combined optimization
   only_public_test_preds = False
-  reference_submission_ext = 'non_parametric_wifi - valid - 2021-03-30 09:14:44.csv'
+  reference_submission_ext = 'non_parametric_wifi - valid - 2021-03-30 091444.csv'
   bogus_test_floors_to_train_all_test_models = False
   test_override_floors = False
 
