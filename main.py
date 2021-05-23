@@ -56,6 +56,8 @@ def main(mode, consider_multiprocessing):
     combine_predictions_beamsearch_multiple_grids.run(
       mode, ensemble_strategy_id)
   
+  print(f"\nThe pipeline in mode '{mode}' completed successfully!")
+  
   
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()

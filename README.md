@@ -1,4 +1,4 @@
-# DISCLAIMER: this code is still work in progress and is expected to be finalized around May 26.  
+# DISCLAIMER: this code is still work in progress and is expected to be finalized around May 26, 2021.  
 
 ## Steps to obtain the approximate winning submission
 1. Clone the repository, it doesn't matter where you clone it to since the source code and data are disentangled.
