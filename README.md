@@ -1,6 +1,6 @@
 # DISCLAIMER: this code is still work in progress and is expected to be finalized around May 26, 2021.  
 
-![Test](https://i.ibb.co/Fbms8nT/optimization.png)
+![Ranking](https://i.ibb.co/KhzRZ72/final-ranking.png)
 
 ## References
 - [Indoor location navigation Kaggle competition](https://www.kaggle.com/c/indoor-location-navigation/)
