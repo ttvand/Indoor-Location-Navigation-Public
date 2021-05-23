@@ -12,6 +12,6 @@ If all goes well, the pipeline should create a "final_submissions" subfolder in 
 
 ## Hardware requirements
 Due to the size of the data set, you need at least 32 GB RAM to be able to run the pipeline successfully.
-  
+
 ## Known issues
 - If you run out of memory, try running the pipeline again. It should continue where it left it in the previous run.

@@ -21,10 +21,10 @@ def run(mode, strategy_id):
   
   valid_mode = mode == 'valid'
   if valid_mode:
-    baseline_grid_source = 'valid - walls_only_old - extended.csv' # V3, 'min_distance_to_known': 3.0, 'max_distance_to_known': 30.0,
+    baseline_grid_source = 'valid - walls_only_old.csv' # V3, 'min_distance_to_known': 3.0, 'max_distance_to_known': 30.0,
     other_sources = [
-      'valid - sparse_inner - extended.csv',  # V4, 'min_distance_to_known': 3.0, 'max_distance_to_known': 30.0, generate_inner_waypoints True, generate_edge_waypoints False 
-      'valid - dense_inner - extended.csv',  # V4, 'min_distance_to_known': 1.5, 'max_distance_to_known': 30.0, generate_inner_waypoints True, generate_edge_waypoints False - wall_point_distance_multiplier 0.2, inner_point_distance_multiplier 0.35
+      'valid - sparse_inner.csv',  # V4, 'min_distance_to_known': 3.0, 'max_distance_to_known': 30.0, generate_inner_waypoints True, generate_edge_waypoints False 
+      'valid - dense_inner.csv',  # V4, 'min_distance_to_known': 1.5, 'max_distance_to_known': 30.0, generate_inner_waypoints True, generate_edge_waypoints False - wall_point_distance_multiplier 0.2, inner_point_distance_multiplier 0.35
       ]
   else:
     baseline_grid_source = 'test - walls_only_old - extended.csv' # V3, 'min_distance_to_known': 3.0, 'max_distance_to_known': 30.0,
