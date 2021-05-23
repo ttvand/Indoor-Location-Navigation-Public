@@ -1,0 +1,15 @@
+wheel
+numpy
+pandas
+plotly
+pillow
+psutil
+shapely
+scikit-learn
+matplotlib
+seaborn
+descartes
+more_itertools
+lightgbm
+pyarrow
+fastparquet
