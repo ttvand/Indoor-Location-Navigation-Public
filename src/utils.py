@@ -869,9 +869,9 @@ def copy_data_files():
   data_copy_files = [
     ('sample_submission.csv', 'submissions'),
     ('submission_cost_minimization.csv', 'submissions'),
-    ('non_parametric_wifi - valid - 2021-03-30 09:14:44.csv', ''),
+    ('non_parametric_wifi - valid - 2021-03-30 091444.csv', ''),
     ('leaderboard_type.csv', ''),
-    ('test - 2021-05-15 05:19:44.csv', 'submissions'),
+    ('test - 2021-05-15 051944.csv', 'submissions'),
     ]
   
   data_folder = get_data_folder()

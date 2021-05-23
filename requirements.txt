@@ -19,3 +19,7 @@ tqdm
 lightgbm
 psutil
 requests
+psutil
+seaborn
+more_itertools
+pyarrow

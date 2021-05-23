@@ -4,6 +4,8 @@ import sys
 sys.path.insert(0, './src')
 
 import apply_correct_sensor_preds
+import combine_predictions_beamsearch
+import combine_predictions_beamsearch_multiple_grids
 import combine_sensor_data
 import create_stratified_holdout_set
 import infer_device_type
@@ -21,6 +23,7 @@ import model_gbm_wifi
 import model_sensor_dist
 import model_sensor_movement
 import model_sensor_movement2
+import write_site_time_ordered_waypoints
 
 def main(mode, consider_multiprocessing):
   # Preparation of base model dependencies
@@ -32,6 +35,7 @@ def main(mode, consider_multiprocessing):
   if meta_stats_sensor_subtrajectories.run():
     infer_device_type.run()
     meta_stats_sensor_subtrajectories.run() # Rerun with infered device ids
+  write_site_time_ordered_waypoints.run()
   
   # Base models
   agg_stats.run()
@@ -56,12 +60,16 @@ def main(mode, consider_multiprocessing):
   infer_start_end_time_leak.run(mode)
   
   # Optimization
-  import pdb; pdb.set_trace()
-  x=1
+  for grid_type in ["walls_only_old", "sparse_inner", "dense_inner"]:
+    combine_predictions_beamsearch.run(
+      mode, grid_type, consider_multiprocessing)
   
   # Ensembling
-  import pdb; pdb.set_trace()
-  x=1
+  for ensemble_strategy_id in [0, 1]:
+    combine_predictions_beamsearch_multiple_grids.run(
+      mode, ensemble_strategy_id)
+  
+  print(f"\nThe pipeline in mode '{mode}' completed successfully!")
   
   
 if __name__ == "__main__":
@@ -71,5 +79,6 @@ if __name__ == "__main__":
   args = parser.parse_args()
   # args.mode = 'valid'
   
+  print(f"Running main script in mode '{args.mode}'\n")
   main(args.mode, args.s)
   
