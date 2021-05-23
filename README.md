@@ -5,6 +5,7 @@
 ## References
 - [Indoor location navigation Kaggle competition](https://www.kaggle.com/c/indoor-location-navigation/)
 - [Summary of our winning solution](https://www.kaggle.com/c/indoor-location-navigation/discussion/240176)
+- [Competition ranking](https://www.kaggle.com/c/indoor-location-navigation/leaderboard)
 
 ## Steps to obtain the approximate winning submission
 1. Clone the repository, it doesn't matter where you clone it to since the source code and data are disentangled.
