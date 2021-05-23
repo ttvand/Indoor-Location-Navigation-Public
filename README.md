@@ -1,5 +1,14 @@
 # DISCLAIMER: this code is still work in progress and is expected to be finalized around May 26, 2021.  
 
+This repository contains the code to generate the winning solution of the Kaggle competition on indoor location and navigation organized by Microsoft Research.
+
+Our team name: "Track me if you can".
+
+Authors:
+- Are Haartveit
+- Dmitry Gordeev
+- Tom Van de Wiele
+
 ![Ranking](https://i.ibb.co/KhzRZ72/final-ranking.png)
 
 ## References
