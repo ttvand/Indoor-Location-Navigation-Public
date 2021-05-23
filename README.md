@@ -5,7 +5,7 @@
 1. Add your data folder to line 19 in src/utils.py
 1. Run main.py
   
-  
+DISCLAIMER: this code is still work in progress and is expected to be finalized around May 26.  
   
   
   
