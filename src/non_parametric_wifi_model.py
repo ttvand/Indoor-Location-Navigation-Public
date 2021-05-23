@@ -138,6 +138,7 @@ def run(mode="test", consider_multiprocessing=True, overwrite_output=False):
       test_waypoint_times, store_all_wifi_predictions,
       store_full_wifi_predictions, debug_fn)
   
+  test_preds = {k: v for d in [o[0] for o in all_outputs] for k, v in d.items()}
   valid_preds = [r for l in [o[1] for o in all_outputs] for r in l]
   all_wifi_predictions = [r for l in [o[2] for o in all_outputs] for r in l]
   full_wifi_predictions = dict(ChainMap(*[o[3] for o in all_outputs if o[3]]))
@@ -148,10 +149,15 @@ def run(mode="test", consider_multiprocessing=True, overwrite_output=False):
       pickle.dump(
         full_wifi_predictions, handle, protocol=pickle.HIGHEST_PROTOCOL)
   if mode == 'test':
-    pass
+    submission = utils.convert_to_submission(data_folder, test_preds)
+    submission_ext = models_group_name + ' - test.csv'
+    submission.to_csv(preds_folder / submission_ext, index=False)
   elif debug_floor is None:
     preds_df = pd.DataFrame(valid_preds)
     print(f"Mean validation error: {preds_df.error.values.mean():.2f}")
+    preds_path = preds_folder / (
+      models_group_name + ' - valid.csv')
+    preds_df.to_csv(preds_path, index=False)
     
     if store_all_wifi_predictions:
       all_wifi_preds_df = pd.DataFrame(all_wifi_predictions)
