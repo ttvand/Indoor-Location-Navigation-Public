@@ -1,5 +1,8 @@
 # DISCLAIMER: this code is still work in progress and is expected to be finalized around May 26, 2021.  
 
+[Indoor location navigation Kaggle competition](https://www.kaggle.com/c/indoor-location-navigation/)
+[Summary of our winning solution](https://www.kaggle.com/c/indoor-location-navigation/discussion/240176)
+
 ## Steps to obtain the approximate winning submission
 1. Clone the repository, it doesn't matter where you clone it to since the source code and data are disentangled.
 1. Create a project folder on a disk with at least 150GB of free space. Create a "Data" subfolder in your project folder. This will be referred to as "your data folder" in what follows.
