@@ -1,5 +1,7 @@
 # DISCLAIMER: this code is still work in progress and is expected to be finalized around May 26, 2021.  
 
+![<img src="https://i.ibb.co/Fbms8nT/optimization.png">](https://www.kaggle.com/c/indoor-location-navigation/leaderboard)
+
 ## References
 - [Indoor location navigation Kaggle competition](https://www.kaggle.com/c/indoor-location-navigation/)
 - [Summary of our winning solution](https://www.kaggle.com/c/indoor-location-navigation/discussion/240176)
