@@ -63,7 +63,9 @@ def collator(batch):
 
 class ZDS(torch.utils.data.Dataset):
 
-  def __init__(self, dataset, agg, n_wps=1, ds_type="train"):
+  def __init__(
+      self, dataset, agg, n_wps=1, ds_type="train",
+      consider_multiprocessing=True):
     self.n_wps = n_wps
     self.ds_type = ds_type
     self.agg = agg
@@ -71,12 +73,17 @@ class ZDS(torch.utils.data.Dataset):
         'x_acce', 'y_acce', 'z_acce', 'x_gyro', 'y_gyro', 'z_gyro', 'x_ahrs',
         'y_ahrs', 'z_ahrs'
     ]
-    # res = Parallel(n_jobs=-1)(delayed(self.process_record)(fn, rec)
-    #                           for fn, rec in tqdm(dataset.items()))
-    with mp.Pool(processes=mp.cpu_count()-1) as pool:
-      results = [pool.apply_async(
-        self.process_record, args=(fn, rec)) for fn, rec in dataset.items()]
-      res = [p.get() for p in results]
+    if consider_multiprocessing:
+      # res = Parallel(n_jobs=-1)(delayed(self.process_record)(fn, rec)
+      #                           for fn, rec in tqdm(dataset.items()))
+      with mp.Pool(processes=mp.cpu_count()-1) as pool:
+        results = [pool.apply_async(
+          self.process_record, args=(fn, rec)) for fn, rec in dataset.items()]
+        res = [p.get() for p in results]
+    else:
+      res = []
+      for fn, rec in dataset.items():
+        res.append(self.process_record(fn, rec))
     self.l = [item for sublist in res for item in sublist[0]]
     self.desc = [item for sublist in res for item in sublist[1]]
 
@@ -344,7 +351,7 @@ class TrainingLoop():
           'runtime': time.time() - start_time
       }, []
 
-def run(mode, fast=False):
+def run(mode, fast=False, consider_multiprocessing=True):
     print(f"Generating sensor relative movement predictions in mode {mode}")
     data_folder = utils.get_data_folder()
     if mode == 'cv':
@@ -412,12 +419,16 @@ def run(mode, fast=False):
                 dataset={k: v for k, v in train.items() if k in train_keys},
                 agg=agg,
                 n_wps=config['n_train_wps'],
-                ds_type="train")
+                ds_type="train",
+                consider_multiprocessing=consider_multiprocessing,
+                )
             valid_ds = ZDS(
                 dataset={k: v for k, v in train.items() if k in valid_keys},
                 agg=agg,
                 n_wps=1,
-                ds_type="valid")
+                ds_type="valid",
+                consider_multiprocessing=consider_multiprocessing,
+                )
 
             bag_preds = 0
             for bag in range(config['bag_size']):
@@ -452,17 +463,23 @@ def run(mode, fast=False):
             ZDS(dataset=train,
                 agg=agg,
                 n_wps=config['n_train_wps'],
-                ds_type="train"),
+                ds_type="train",
+                consider_multiprocessing=consider_multiprocessing,
+                ),
             #ZDS(dataset=valid,
             #    agg=agg,
             #    n_wps=config['n_train_wps'],
             #    ds_type="train")
         ])
-        valid_ds = ZDS(dataset=test, agg=agg, n_wps=1, ds_type="test")
+        valid_ds = ZDS(dataset=test, agg=agg, n_wps=1, ds_type="test",
+                       consider_multiprocessing=consider_multiprocessing)
     else:
         train_ds = ZDS(
-            dataset=train, agg=agg, n_wps=config['n_train_wps'], ds_type="train")
-        valid_ds = ZDS(dataset=valid, agg=agg, n_wps=1, ds_type="valid")
+            dataset=train, agg=agg, n_wps=config['n_train_wps'],
+            ds_type="train",
+            consider_multiprocessing=consider_multiprocessing)
+        valid_ds = ZDS(dataset=valid, agg=agg, n_wps=1, ds_type="valid",
+                       consider_multiprocessing=consider_multiprocessing)
 
     print("Data loaded")
 

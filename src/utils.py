@@ -897,14 +897,10 @@ def copy_sensor_files():
   
   for d1 in repo_data_folder.iterdir():
     if d1.is_dir():
-      d1_ext = str(d1).split('/')[-1]
       for d2 in d1.iterdir():
         if d2.is_dir():
-          d2_ext = str(d2).split('/')[-1]
-          target_folder = models_folder / d1_ext / d2_ext
+          target_folder = models_folder / d1.stem / d2.stem
           for fn in d2.iterdir():
             if fn.is_file():
-              fn_ext = str(fn).split('/')[-1]
-              
               pathlib.Path(target_folder).mkdir(parents=True, exist_ok=True)
-              shutil.copy(fn, target_folder / fn_ext)
+              shutil.copy(fn, target_folder / fn.stem)

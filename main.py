@@ -43,11 +43,17 @@ def main(
   non_parametric_wifi_model.run(
     mode, consider_multiprocessing=consider_multiprocessing)
   agg_stats.run()
-  model_sensor_dist.run('cv', fast=fast_sensor_models)
-  model_sensor_dist.run(mode, fast=fast_sensor_models)
-  model_sensor_movement.run('cv', fast=fast_sensor_models) # -> data/sensor_mov_cv
-  model_sensor_movement.run(mode, fast=fast_sensor_models) # -> data/sensor_mov_{mode}
-  model_sensor_movement2.run(mode, fast=fast_sensor_models) # -> data/sensor_mov2_{mode}
+  for m in ['cv', mode]:
+    model_sensor_dist.run(
+      m, fast=fast_sensor_models,
+      consider_multiprocessing=consider_multiprocessing)
+  for m in ['cv', mode]:
+    model_sensor_movement.run(
+      m, fast=fast_sensor_models,
+      consider_multiprocessing=consider_multiprocessing)
+  model_sensor_movement2.run(
+      mode, fast=fast_sensor_models,
+      consider_multiprocessing=consider_multiprocessing)
   
   # Other optimization dependencies
   sensor_errors_over_time_device.run()
