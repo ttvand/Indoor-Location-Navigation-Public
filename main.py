@@ -24,9 +24,12 @@ import model_sensor_movement
 import model_sensor_movement2
 import write_site_time_ordered_waypoints
 
-def main(mode, consider_multiprocessing, fast_sensor_models=True):
+def main(
+    mode, consider_multiprocessing, fast_sensor_models, copy_sensor_models):
   # Preparation of base model dependencies
   utils.copy_data_files()
+  if copy_sensor_models:
+    utils.copy_sensor_files()
   meta_file_preprocessing.run()
   reshape_reference_preprocessed.run()
   create_stratified_holdout_set.run()
@@ -40,11 +43,17 @@ def main(mode, consider_multiprocessing, fast_sensor_models=True):
   non_parametric_wifi_model.run(
     mode, consider_multiprocessing=consider_multiprocessing)
   agg_stats.run()
-  model_sensor_dist.run('cv', fast=fast_sensor_models)
-  model_sensor_dist.run(mode, fast=fast_sensor_models)
-  model_sensor_movement.run('cv', fast=fast_sensor_models) # -> data/sensor_mov_cv
-  model_sensor_movement.run(mode, fast=fast_sensor_models) # -> data/sensor_mov_{mode}
-  model_sensor_movement2.run(mode, fast=fast_sensor_models) # -> data/sensor_mov2_{mode}
+  for m in ['cv', mode]:
+    model_sensor_dist.run(
+      m, fast=fast_sensor_models,
+      consider_multiprocessing=consider_multiprocessing)
+  for m in ['cv', mode]:
+    model_sensor_movement.run(
+      m, fast=fast_sensor_models,
+      consider_multiprocessing=consider_multiprocessing)
+  model_sensor_movement2.run(
+      mode, fast=fast_sensor_models,
+      consider_multiprocessing=consider_multiprocessing)
   
   # Other optimization dependencies
   sensor_errors_over_time_device.run()
@@ -72,10 +81,14 @@ def main(mode, consider_multiprocessing, fast_sensor_models=True):
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument("-m", "--mode", default='test')
-  parser.add_argument("-s", action='store_false')
+  parser.add_argument("-s", action='store_false') # Suppress multiprocessing
+  parser.add_argument("-f", action='store_true') # Fast (and bad) sensor model mode
+  parser.add_argument("-c", action='store_true') # Copy sensor model option
   args = parser.parse_args()
+  
   # args.mode = 'valid'
+  # args.c = True
   
   print(f"Running main script in mode '{args.mode}'\n")
-  main(args.mode, args.s)
+  main(args.mode, args.s, args.f, args.c)
   

@@ -99,8 +99,6 @@ site_dirs = [(meta_path / s) for s in sites]
 output_folder = utils.get_data_folder() / "generated_waypoints"
 plot = True
 
-output_folder.mkdir(exist_ok=True)
-
 
 def maybe_median(array: np.ndarray, default: float = 999) -> float:
   if len(array) > 1:
