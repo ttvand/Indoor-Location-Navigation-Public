@@ -206,7 +206,7 @@ def run(mode, strategy_id):
     after_merge_error = np.sqrt(
       (baseline.x_actual.values - merged_predictions[:, 0])**2 + (
         baseline.y_actual.values - merged_predictions[:, 1])**2).mean()
-    print(f"Original error: {original_error}; after merge error: {after_merge_error}")
+    print(f"Original error: {original_error:.3f}; after merge error: {after_merge_error:.3f}")
   else:
     # Analyze the impact on the public and private set
     public_diff_results_df = results_df[(

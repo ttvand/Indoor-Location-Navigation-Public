@@ -64,17 +64,16 @@ def generate_floor_waypoints(
           generated_waypoints, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 def preprocess(
-    config, mode, wifi_preds_path, wifi_preds_path_lgbm, source_preds_path,
-    valid_mode, sensor_distance_path, sensor_rel_movement_path,
-    sensor_abs_movement_path, time_leak_source_path, waypoints_path,
-    leaderboard_types_path, cheat_valid_waypoints,
-    sensor_uncertainties_path, sensor_segment_stats_source,
-    waypoints_folder, additional_grid_multiprocessing, test_override_floors,
-    grid_version, add_test_grid_public_calc=False):
+    config, mode, wifi_preds_path, source_preds_path, valid_mode,
+    sensor_distance_path, sensor_rel_movement_path, sensor_abs_movement_path,
+    time_leak_source_path, waypoints_path, leaderboard_types_path,
+    cheat_valid_waypoints, sensor_uncertainties_path,
+    sensor_segment_stats_source, waypoints_folder,
+    additional_grid_multiprocessing, test_override_floors, grid_version,
+    add_test_grid_public_calc=False):
   # Wifi data
   with open(wifi_preds_path, 'rb') as f:
     wifi_preds = pickle.load(f)
-  wifi_preds_lgbm = pd.read_csv(wifi_preds_path_lgbm)
     
   source_preds = pd.read_csv(source_preds_path)
   leaderboard_types = pd.read_csv(leaderboard_types_path)
@@ -87,9 +86,6 @@ def preprocess(
   if valid_mode:
     source_actual = source_preds[['x_actual', 'y_actual']].values
     original_preds = source_preds[['x_pred', 'y_pred']].values
-    wifi_preds_lgbm = wifi_preds_lgbm.sort_values(
-      ['site_id', 'text_level', 'fn', 'waypoint_time']).reset_index(
-        drop=True)
   else:
     source_actual = -1*np.ones((source_preds.shape[0], 2))
     original_preds = source_preds[['x', 'y']].values
@@ -97,12 +93,6 @@ def preprocess(
       source_preds.site_path_timestamp)]
     source_preds['waypoint_time'] = [int(sps.split('_')[2]) for sps in (
       source_preds.site_path_timestamp)]
-    wifi_preds_lgbm['site_path_timestamp'] = [
-      'site_' + fn + '_timestamp' for fn in wifi_preds_lgbm.fn]
-    wifi_preds_lgbm['floor'] = wifi_preds_lgbm['level']
-    wifi_preds_lgbm = utils.override_test_floor_errors(
-      wifi_preds_lgbm, debug_test_floor_override=test_override_floors)
-    wifi_preds_lgbm['level'] = wifi_preds_lgbm.floor
   
   # Sensor predictions
   distance_preds = pd.read_csv(sensor_distance_path)
@@ -140,7 +130,6 @@ def preprocess(
   floor_waypoint_wifi_distances = []
   floor_waypoint_wifi_distances_order = []
   wifi_preds_flat = []
-  wifi_preds_lgbm_flat = []
   time_leaks = []
   fn_ids = []
   sensor_segment_stats = []
@@ -164,9 +153,6 @@ def preprocess(
     floors.append(floor)
     numeric_floor = utils.TEST_FLOOR_MAPPING[floor]
     wifi_preds_flat.append(wifi_preds[(site, floor)])
-    wifi_preds_lgbm_flat.append(wifi_preds_lgbm[
-      (wifi_preds_lgbm.level == numeric_floor) & (
-      wifi_preds_lgbm.site_id == site)])
     sensor_segment_stats.append(sensor_segment_stats_wide[
       (sensor_segment_stats_wide.level == numeric_floor) & (
       sensor_segment_stats_wide.site == site)])
@@ -298,7 +284,9 @@ def preprocess(
       floor_waypoint_wifi_distances_order.append(np.argsort(
         distances, 0))
       
-      fns_floor = np.unique(wifi_preds_lgbm_flat[-1].fn.values)
+      fns_floor = np.unique(
+        [c.split('_')[0] for c in wifi_preds[(site, floor)].columns[2:]])
+      fns_floor = fns_floor.astype(object)
       fn_ids.append({fn: i+last_fn_id for i, fn in enumerate(fns_floor)})
       last_fn_id += fns_floor.size
     else:
@@ -314,10 +302,10 @@ def preprocess(
   return (loaded_mode, orig_source_preds, source_preds, sites, floors,
           unique_floor_waypoints, floor_waypoint_rel_pos_distances,
           floor_waypoint_wifi_distances, floor_waypoint_wifi_distances_order,
-          leaderboard_types, time_leaks, wifi_preds_flat, wifi_preds_lgbm_flat,
-          original_preds, distance_preds, relative_movement_preds,
-          absolute_movement_preds, sensor_preds_uncertainties,
-          sensor_segment_stats, source_actual, fn_ids, w)
+          leaderboard_types, time_leaks, wifi_preds_flat, original_preds,
+          distance_preds, relative_movement_preds, absolute_movement_preds,
+          sensor_preds_uncertainties, sensor_segment_stats, source_actual,
+          fn_ids, w)
 
 
 def preprocess_sensor_signature(
@@ -411,9 +399,8 @@ def align_predictions(
     sensor_times, sensor_fn_distances, waypoint_times, floor_waypoints,
     off_grid_penalties, addit_grid_density_penalties,
     floor_waypoint_rel_pos_distances, floor_waypoint_wifi_distances,
-    floor_waypoint_wifi_distances_order, fn_wifi_lgbm,
-    floor_waypoint_sensor_distances_order, fn_distance_preds,
-    fn_relative_movement_preds, fn_absolute_movement_preds,
+    floor_waypoint_wifi_distances_order, floor_waypoint_sensor_distances_order,
+    fn_distance_preds, fn_relative_movement_preds, fn_absolute_movement_preds,
     fn_sensor_preds_uncertainties, fn_time_leak, actual_waypoints, valid_mode,
     w, walls_count, unbias_distance_predictions):
   
@@ -423,7 +410,6 @@ def align_predictions(
     'waypoint_weighted_wifi_penalties_mult']
   nn_wifi_exp = config['nn_wifi_exp']
   wifi_penalties_exp = config['wifi_penalties_exp']
-  nn_wifi_alpha = config['nn_wifi_alpha']
   time_leak_delay_cutoff = config['time_leak_delay_cutoff']
   time_leak_time_decay_constant = config['time_leak_time_decay_constant']
   time_leak_nearby_constant = config['time_leak_nearby_constant']
@@ -519,15 +505,6 @@ def align_predictions(
   # import pdb; pdb.set_trace()
   # x=2
   
-  # Compute the distances to LGBM predictions
-  lgbm_pos = fn_wifi_lgbm[['x_preds', 'y_preds']].values
-  lgbm_distances = np.sqrt((
-    lgbm_pos[:, :1] - np.expand_dims(floor_waypoints[:, 0], 0))**2 + (
-      lgbm_pos[:, 1:] - np.expand_dims(floor_waypoints[:, 1], 0))**2)
-  base_lgbm_wifi_penalties = lgbm_distances - (
-    lgbm_distances.min(1, keepdims=True))
-  # lgbm_wifi_penalties = base_lgbm_wifi_penalties**wifi_penalties_exp
-  
   # Compute a weighted position using the nearest training neighbors
   # (wifi position based)
   top_ids = np.transpose(
@@ -554,9 +531,7 @@ def align_predictions(
   waypoint_weighted_wifi_penalties_nn = (
     time_weighted_wifi_penalties[low_ids_wifi] + (
       time_weighted_wifi_penalties[high_ids_wifi]))/2
-  waypoint_weighted_wifi_penalties = (
-    nn_wifi_alpha*waypoint_weighted_wifi_penalties_nn) + (
-      1-nn_wifi_alpha)*base_lgbm_wifi_penalties
+  waypoint_weighted_wifi_penalties = waypoint_weighted_wifi_penalties_nn
   waypoint_weighted_wifi_penalties = waypoint_weighted_wifi_penalties ** (
     wifi_penalties_exp)
   
@@ -991,9 +966,8 @@ def align_predictions(
           target_on_waypoints, time_wifi_min_dist, optim_stats)
 
 def get_optimized_predictions(
-    config, valid_mode, site, floor, wifi_floor_preds, wifi_floor_preds_lgbm,
-    floor_waypoints_train, this_floor_waypoint_rel_pos_distances,
-    this_floor_waypoint_wifi_distances,
+    config, valid_mode, site, floor, wifi_floor_preds, floor_waypoints_train,
+    this_floor_waypoint_rel_pos_distances, this_floor_waypoint_wifi_distances,
     this_floor_waypoint_wifi_distances_order,
     this_floor_sensor_segment_stats, time_leaks, fn_ids, distance_preds,
     relative_movement_preds, absolute_movement_preds,
@@ -1070,7 +1044,6 @@ def get_optimized_predictions(
       fn_sensor_preds_uncertainties = sensor_preds_uncertainties[
         sensor_preds_uncertainties.fn == fn]
       fn_time_leak = time_leaks[time_leaks.fn == fn]
-      fn_wifi_lgbm = wifi_floor_preds_lgbm[wifi_floor_preds_lgbm.fn == fn]
       # fn_sensor_stats = this_floor_sensor_segment_stats[
       #   this_floor_sensor_segment_stats.fn == fn]
       
@@ -1095,7 +1068,7 @@ def get_optimized_predictions(
          floor_waypoints, off_grid_penalties, addit_grid_density_penalties,
          this_floor_waypoint_rel_pos_distances,
          this_floor_waypoint_wifi_distances,
-         this_floor_waypoint_wifi_distances_order, fn_wifi_lgbm,
+         this_floor_waypoint_wifi_distances_order,
          this_floor_waypoint_sensor_distances_order, fn_distance_preds,
          fn_relative_movement_preds, fn_absolute_movement_preds,
          fn_sensor_preds_uncertainties, fn_time_leak, actual_waypoints,
@@ -1251,7 +1224,7 @@ def combined_predictions_all_floors(
     mode, config, use_multiprocessing, distance_preds, relative_movement_preds,
     absolute_movement_preds, sensor_preds_uncertainties, source_preds,
     original_preds, source_actual, sensor_segment_stats, fn_ids, sites, floors,
-    time_leaks, wifi_preds_flat, wifi_preds_lgbm_flat, unique_floor_waypoints,
+    time_leaks, wifi_preds_flat, unique_floor_waypoints,
     floor_waypoint_rel_pos_distances, floor_waypoint_wifi_distances,
     floor_waypoint_wifi_distances_order, leaderboard_types,
     ignore_private_test, debug_fn, drop_mislabeled_fn_list_valid, w,
@@ -1274,16 +1247,15 @@ def combined_predictions_all_floors(
     with mp.Pool(processes=mp.cpu_count()-1) as pool:
       results = [pool.apply_async(
         get_optimized_predictions, args=(
-          config, valid_mode, s, f, wpf, wlgbm, u, fwr, fw, fwo, sss, t, fid,
+          config, valid_mode, s, f, wpf, u, fwr, fw, fwo, sss, t, fid,
           distance_preds, relative_movement_preds, absolute_movement_preds,
           sensor_preds_uncertainties, source_preds, original_preds,
           source_actual, leaderboard_types, ignore_private_test, debug_fn,
           drop_mislabeled_fn_list_valid, wc, walls_folder, walls_mode,
           unbias_distance_predictions, verbose)) for (
-            s, f, wpf, wlgbm, u, fwr, fw, fwo, sss, t, fid, wc) in zip(
-              sites, floors, wifi_preds_flat, wifi_preds_lgbm_flat,
-              unique_floor_waypoints, floor_waypoint_rel_pos_distances,
-              floor_waypoint_wifi_distances,
+            s, f, wpf, u, fwr, fw, fwo, sss, t, fid, wc) in zip(
+              sites, floors, wifi_preds_flat, unique_floor_waypoints,
+              floor_waypoint_rel_pos_distances, floor_waypoint_wifi_distances,
               floor_waypoint_wifi_distances_order, sensor_segment_stats,
               time_leaks, fn_ids, w_copies)]
       all_outputs = [p.get() for p in results]
@@ -1293,8 +1265,7 @@ def combined_predictions_all_floors(
       all_outputs.append(
         get_optimized_predictions(
           config, valid_mode, site, floor, wifi_preds_flat[i],
-          wifi_preds_lgbm_flat[i], unique_floor_waypoints[i],
-          floor_waypoint_rel_pos_distances[i],
+          unique_floor_waypoints[i], floor_waypoint_rel_pos_distances[i],
           floor_waypoint_wifi_distances[i], time_leaks[i], fn_ids[i],
           distance_preds, relative_movement_preds, absolute_movement_preds,
           sensor_preds_uncertainties, source_preds, original_preds,

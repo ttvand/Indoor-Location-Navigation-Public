@@ -37,7 +37,6 @@ def run(mode, grid_type, consider_multiprocessing):
     'waypoint_weighted_wifi_penalties_mult': 0.8,
     'nn_wifi_exp': 1.5,
     'wifi_penalties_exp': 0.8,
-    'nn_wifi_alpha': 0.75, # LGBM blend best position guess
     'time_leak_delay_cutoff': 15,
     'time_leak_time_decay_constant': 20,
     'time_leak_nearby_constant': 2,
@@ -91,7 +90,6 @@ def run(mode, grid_type, consider_multiprocessing):
   valid_mode = mode == 'valid'
   if valid_mode:
     wifi_source = 'non_parametric_wifi - valid - full distances.pickle'
-    wifi_source_lgbm = 'valid_predictions_lgbm_v2.csv'
     sensor_distance_source = 'distance_valid.csv'
     sensor_relative_movement_source = 'relative_movement_v2_valid.csv'
     sensor_absolute_movement_source = 'relative_movement_v3_valid.csv'
@@ -99,7 +97,6 @@ def run(mode, grid_type, consider_multiprocessing):
     time_leak_source = 'valid_edge_positions_v3.csv'
   else:
     wifi_source = 'non_parametric_wifi - test - full distances.pickle'
-    wifi_source_lgbm = 'test_predictions_lgbm_v2.csv'
     sensor_distance_source = 'distance_test.csv'
     sensor_relative_movement_source = 'relative_movement_v2_test_norefit.csv'
     sensor_absolute_movement_source = 'relative_movement_v3_test_norefit.csv'
@@ -122,7 +119,6 @@ def run(mode, grid_type, consider_multiprocessing):
   
   wifi_preds_path =  wifi_preds_folder / wifi_source
   wifi_preds_lgbm_folder = models_folder / 'lgbm_wifi' / 'predictions'
-  wifi_preds_path_lgbm =  wifi_preds_lgbm_folder / wifi_source_lgbm
   source_preds_path = wifi_preds_folder / wifi_ref_source
   sensor_distance_folder = models_folder / 'sensor_distance' / 'predictions'
   sensor_distance_path =  sensor_distance_folder / sensor_distance_source
@@ -149,11 +145,11 @@ def run(mode, grid_type, consider_multiprocessing):
   (loaded_mode, orig_source_preds, source_preds, sites, floors,
    unique_floor_waypoints, floor_waypoint_rel_pos_distances,
    floor_waypoint_wifi_distances, floor_waypoint_wifi_distances_order,
-   leaderboard_types, time_leaks, wifi_preds_flat, wifi_preds_lgbm_flat,
-   original_preds, distance_preds, relative_movement_preds,
-   absolute_movement_preds, sensor_preds_uncertainties, sensor_segment_stats,
-   source_actual, fn_ids, w) = combine_predictions_beamsearch_utils.preprocess(
-     config, mode, wifi_preds_path, wifi_preds_path_lgbm, source_preds_path,
+   leaderboard_types, time_leaks, wifi_preds_flat, original_preds,
+   distance_preds, relative_movement_preds, absolute_movement_preds,
+   sensor_preds_uncertainties, sensor_segment_stats, source_actual, fn_ids,
+   w) = combine_predictions_beamsearch_utils.preprocess(
+     config, mode, wifi_preds_path, source_preds_path,
      valid_mode, sensor_distance_path, sensor_rel_movement_path,
      sensor_abs_movement_path, time_leak_source_path, waypoints_path,
      leaderboard_types_path, cheat_valid_waypoints,
@@ -163,14 +159,15 @@ def run(mode, grid_type, consider_multiprocessing):
   
   optimized_predictions, optimized_test_predictions = (
     combine_predictions_beamsearch_utils.combined_predictions_all_floors(
-      mode, config, use_multiprocessing, distance_preds, relative_movement_preds,
-      absolute_movement_preds, sensor_preds_uncertainties, source_preds,
-      original_preds, source_actual, sensor_segment_stats, fn_ids, sites, floors,
-      time_leaks, wifi_preds_flat, wifi_preds_lgbm_flat, unique_floor_waypoints,
-      floor_waypoint_rel_pos_distances, floor_waypoint_wifi_distances,
-      floor_waypoint_wifi_distances_order, leaderboard_types,
-      ignore_private_test, debug_fn, drop_mislabeled_fn_list_valid, w,
-      walls_folder, unbias_distance_predictions))
+      mode, config, use_multiprocessing, distance_preds,
+      relative_movement_preds, absolute_movement_preds,
+      sensor_preds_uncertainties, source_preds, original_preds, source_actual,
+      sensor_segment_stats, fn_ids, sites, floors, time_leaks, wifi_preds_flat,
+      unique_floor_waypoints, floor_waypoint_rel_pos_distances,
+      floor_waypoint_wifi_distances, floor_waypoint_wifi_distances_order,
+      leaderboard_types, ignore_private_test, debug_fn,
+      drop_mislabeled_fn_list_valid, w, walls_folder,
+      unbias_distance_predictions))
   
   if valid_mode:
     optimized_predictions.sort_values(
