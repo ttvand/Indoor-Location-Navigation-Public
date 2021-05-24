@@ -886,3 +886,25 @@ def copy_data_files():
     if not target_path.is_file():
       source_path = repo_data_folder / f
       shutil.copy(source_path, target_path)
+      
+
+def copy_sensor_files():
+  print("Copying sensor model predictions")
+  data_folder = get_data_folder()
+  models_folder = data_folder.parent / 'Models'
+  repo_data_folder = pathlib.Path(__file__).parent.absolute().parent / (
+    'data') / 'sensor_models'
+  
+  for d1 in repo_data_folder.iterdir():
+    if d1.is_dir():
+      d1_ext = str(d1).split('/')[-1]
+      for d2 in d1.iterdir():
+        if d2.is_dir():
+          d2_ext = str(d2).split('/')[-1]
+          target_folder = models_folder / d1_ext / d2_ext
+          for fn in d2.iterdir():
+            if fn.is_file():
+              fn_ext = str(fn).split('/')[-1]
+              
+              pathlib.Path(target_folder).mkdir(parents=True, exist_ok=True)
+              shutil.copy(fn, target_folder / fn_ext)

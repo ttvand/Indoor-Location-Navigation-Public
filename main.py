@@ -24,9 +24,12 @@ import model_sensor_movement
 import model_sensor_movement2
 import write_site_time_ordered_waypoints
 
-def main(mode, consider_multiprocessing, fast_sensor_models=True):
+def main(
+    mode, consider_multiprocessing, fast_sensor_models, copy_sensor_models):
   # Preparation of base model dependencies
   utils.copy_data_files()
+  if copy_sensor_models:
+    utils.copy_sensor_files()
   meta_file_preprocessing.run()
   reshape_reference_preprocessed.run()
   create_stratified_holdout_set.run()
@@ -72,10 +75,14 @@ def main(mode, consider_multiprocessing, fast_sensor_models=True):
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument("-m", "--mode", default='test')
-  parser.add_argument("-s", action='store_false')
+  parser.add_argument("-s", action='store_false') # Suppress multiprocessing
+  parser.add_argument("-f", action='store_true') # Fast (and bad) sensor model mode
+  parser.add_argument("-c", action='store_true') # Copy sensor model option
   args = parser.parse_args()
+  
   # args.mode = 'valid'
+  # args.c = True
   
   print(f"Running main script in mode '{args.mode}'\n")
-  main(args.mode, args.s)
+  main(args.mode, args.s, args.f, args.c)
   

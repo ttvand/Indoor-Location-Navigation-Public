@@ -8,7 +8,6 @@ import torch
 from tqdm import tqdm
 # from joblib import Parallel, delayed
 from sklearn.model_selection import KFold
-import os
 import json
 import time
 
@@ -207,9 +206,6 @@ class TrainingLoop():
 
     if self.config.get('mixed_precision', False):
       self.scaler = torch.cuda.amp.GradScaler()
-
-    if not os.path.exists(config.get('results_path')):
-      os.makedirs(config.get('results_path'))
 
     self.train_loader = torch.utils.data.DataLoader(
         train_ds,
