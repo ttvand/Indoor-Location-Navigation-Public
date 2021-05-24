@@ -1,11 +1,12 @@
+import multiprocessing as mp
 import numpy as np
 import pandas as pd
 import pickle
 from src import utils
-from pathlib import Path
+import pathlib
 import torch
 from tqdm import tqdm
-from joblib import Parallel, delayed
+# from joblib import Parallel, delayed
 from sklearn.model_selection import KFold
 import os
 import json
@@ -62,8 +63,13 @@ class ZDS(torch.utils.data.Dataset):
         'x_acce', 'y_acce', 'z_acce', 'x_gyro', 'y_gyro', 'z_gyro', 'x_ahrs',
         'y_ahrs', 'z_ahrs'
     ]
-    res = Parallel(n_jobs=-1)(delayed(self.process_record)(fn, rec)
-                              for fn, rec in tqdm(dataset.items()))
+    # res = Parallel(n_jobs=-1)(delayed(self.process_record)(fn, rec)
+    #                           for fn, rec in tqdm(dataset.items()))
+    with mp.Pool(processes=mp.cpu_count()-1) as pool:
+      results = [pool.apply_async(
+        self.process_record, args=(fn, rec)) for fn, rec in dataset.items()]
+      res = [p.get() for p in results]
+    
     self.l = [item for sublist in res for item in sublist[0]]
     self.desc = [item for sublist in res for item in sublist[1]]
 
@@ -314,14 +320,23 @@ class TrainingLoop():
       }, []
 
 def run(mode, fast=False):
+    print(f"Generating sensor distance predictions in mode {mode}")
+    data_folder = utils.get_data_folder()
+    if mode == 'cv':
+      results_path = data_folder.parent / 'Models' / 'sensor_distance' / mode
+    else:
+      results_path = data_folder.parent / 'Models' / 'sensor_distance' / (
+        'predictions')
+    pathlib.Path(results_path).mkdir(parents=True, exist_ok=True)
+    
     config = dict(
         device='cuda' if torch.cuda.is_available() else 'cpu',
         #run_type=['valid', 'test', 'cv'][2],
         run_type=mode,
-        bag_size=1 if fast else 3,
+        bag_size=1 if (fast or mode == 'cv') else 3,
         n_inputs=9,
         n_train_wps=2,
-        n_epochs=1 if fast else 20,
+        n_epochs=1 if fast else (10 if mode == 'cv' else 20),
         batch_size=64 * 4,
         num_workers=0,
         mixed_precision=True,
@@ -339,24 +354,31 @@ def run(mode, fast=False):
         #'gradient_accumulation_steps': 1,
         #'preds_dump_freq': 1e5,
         train_file=["train.pickle", "train_all_sites.pickle"][0],
-        results_path=f"data/sensor_dist_{mode}",
+        results_path=results_path,
     )
 
+    sensor_folder = data_folder / 'sensor_data'
+    processed_folder = data_folder / 'processed'
     if config['run_type'] == 'cv':
-        data_folder = utils.get_data_folder()
-        summary_path = data_folder / 'file_summary.csv'
-        sensor_folder = data_folder / 'sensor_data'
-
-        with open('data/processed/tests_stats.p', 'rb') as f:
+        last_fold_path = config.get('results_path') / ('preds_bag_fold_' + str(
+          4) + '.csv')
+        if last_fold_path.is_file():
+          return
+      
+        with open(processed_folder / 'tests_stats.p', 'rb') as f:
             agg = pickle.load(f)
         with open(sensor_folder / (config['train_file']), 'rb') as f:
             train = pickle.load(f)
-
         kf = KFold(n_splits=5, shuffle=True, random_state=142)
         all_keys = np.array(list(train.keys()))
         fold = 0
         for train_index, valid_index in kf.split(all_keys):
-            print(f"Fold {fold}")
+            fold_path = config.get('results_path') / ('preds_bag_fold_' + str(
+              fold) + '.csv')
+            if fold_path.is_file():
+              continue
+          
+            print(f"Fold {fold+1} of 5")
             train_keys = all_keys[train_index]
             valid_keys = all_keys[valid_index]
 
@@ -380,17 +402,16 @@ def run(mode, fast=False):
 
             res = valid_ds.get_df()
             res['pred'] = bag_preds
-            res.to_csv(
-                f"{config.get('results_path')}/preds_bag_fold_{fold}.csv", index=False)
+            res.to_csv(fold_path, index=False)
             fold += 1
-        return()
+        return
     else:
-        data_folder = utils.get_data_folder()
-        summary_path = data_folder / 'file_summary.csv'
-        df = pd.read_csv(summary_path)
-        sensor_folder = data_folder / 'sensor_data'
-
-        with open('data/processed/tests_stats.p', 'rb') as f:
+        results_path = config.get('results_path') / (
+          "distance_" + config['run_type'] + ".csv")
+        if results_path.is_file():
+          return
+        
+        with open(processed_folder / 'tests_stats.p', 'rb') as f:
             agg = pickle.load(f)
         with open(sensor_folder / ('train.pickle'), 'rb') as f:
             train = pickle.load(f)
@@ -420,6 +441,7 @@ def run(mode, fast=False):
 
     bag_preds = 0
     for bag in range(config['bag_size']):
+        print(f"Bag {bag+1} of {config['bag_size']}")
         model = ZNN(config)
         model = model.to(config['device'])
         model, preds = TrainingLoop(train_ds, valid_ds, config, model).run()
@@ -427,4 +449,4 @@ def run(mode, fast=False):
 
     res = valid_ds.get_df()
     res['pred'] = bag_preds
-    res.to_csv(f"{config.get('results_path')}/preds_bag.csv")
+    res.to_csv(results_path)

@@ -24,7 +24,7 @@ import model_sensor_movement
 import model_sensor_movement2
 import write_site_time_ordered_waypoints
 
-def main(mode, consider_multiprocessing):
+def main(mode, consider_multiprocessing, fast_sensor_models=True):
   # Preparation of base model dependencies
   utils.copy_data_files()
   meta_file_preprocessing.run()
@@ -40,11 +40,11 @@ def main(mode, consider_multiprocessing):
   non_parametric_wifi_model.run(
     mode, consider_multiprocessing=consider_multiprocessing)
   agg_stats.run()
-  # model_sensor_dist.run('cv', fast=True) # -> data/sensor_dist_cv
-  # model_sensor_dist.run(mode, fast=True) # -> data/sensor_dist_{mode}
-  # model_sensor_movement.run('cv', fast=True) # -> data/sensor_mov_cv
-  # model_sensor_movement.run(mode, fast=True) # -> data/sensor_mov_{mode}
-  # model_sensor_movement2.run(mode, fast=True) # -> data/sensor_mov2_{mode}
+  model_sensor_dist.run('cv', fast=fast_sensor_models)
+  model_sensor_dist.run(mode, fast=fast_sensor_models)
+  model_sensor_movement.run('cv', fast=fast_sensor_models) # -> data/sensor_mov_cv
+  model_sensor_movement.run(mode, fast=fast_sensor_models) # -> data/sensor_mov_{mode}
+  model_sensor_movement2.run(mode, fast=fast_sensor_models) # -> data/sensor_mov2_{mode}
   
   # Other optimization dependencies
   sensor_errors_over_time_device.run()

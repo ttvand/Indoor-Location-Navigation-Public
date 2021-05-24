@@ -42,8 +42,8 @@ def run(mode, strategy_id):
   pathlib.Path(save_ensemble_test_folder).mkdir(parents=True, exist_ok=True)
   test_save_path = save_ensemble_test_folder / (
     'final_submissions_ensemble_' + str(strategy_id))
-  if mode == 'test' and test_save_path.is_file():
-    return  
+  # if mode == 'test' and test_save_path.is_file():
+  #   return  
   
   # Load the raw data 
   baseline = pd.read_csv(storage_folder / baseline_grid_source)

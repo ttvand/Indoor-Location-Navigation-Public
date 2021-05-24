@@ -10,7 +10,7 @@ def run():
   summary_path = data_folder / 'file_summary.csv'
   df = pd.read_csv(summary_path)
   model_folder = data_folder.parent / 'Models' / 'sensor_absolute_movement'
-  absolute_fold_folder = model_folder / 'errors cv'
+  absolute_fold_folder = model_folder / 'cv'
   distance_folder = model_folder.parent / 'sensor_distance'
   valid_path = model_folder / 'predictions' / 'relative_movement_v3_valid.csv'
   device_id_path = data_folder / 'device_ids.pickle'
@@ -132,7 +132,7 @@ def run():
         device_errors.device_id.values[1:])).tolist()
     device_errors['dist'] = np.sqrt(
       device_errors.x.values**2 + device_errors.y.values**2)
-    distance_cv_folder = distance_folder / 'distance_cv'
+    distance_cv_folder = distance_folder / 'cv'
     folds = []
     for i in range(5):
       f = pd.read_csv(distance_cv_folder / (

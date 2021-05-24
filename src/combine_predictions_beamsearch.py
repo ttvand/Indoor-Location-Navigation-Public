@@ -98,8 +98,8 @@ def run(mode, grid_type, consider_multiprocessing):
   else:
     wifi_source = 'non_parametric_wifi - test - full distances.pickle'
     sensor_distance_source = 'distance_test.csv'
-    sensor_relative_movement_source = 'relative_movement_v2_test_norefit.csv'
-    sensor_absolute_movement_source = 'relative_movement_v3_test_norefit.csv'
+    sensor_relative_movement_source = 'relative_movement_v2_test.csv'
+    sensor_absolute_movement_source = 'relative_movement_v3_test.csv'
     sensor_uncertainties_source = 'uncertainty - test.csv'
     time_leak_source = 'test_edge_positions_v3.csv'
     
@@ -118,7 +118,6 @@ def run(mode, grid_type, consider_multiprocessing):
     return
   
   wifi_preds_path =  wifi_preds_folder / wifi_source
-  wifi_preds_lgbm_folder = models_folder / 'lgbm_wifi' / 'predictions'
   source_preds_path = wifi_preds_folder / wifi_ref_source
   sensor_distance_folder = models_folder / 'sensor_distance' / 'predictions'
   sensor_distance_path =  sensor_distance_folder / sensor_distance_source
