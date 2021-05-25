@@ -1266,8 +1266,9 @@ def combined_predictions_all_floors(
         get_optimized_predictions(
           config, valid_mode, site, floor, wifi_preds_flat[i],
           unique_floor_waypoints[i], floor_waypoint_rel_pos_distances[i],
-          floor_waypoint_wifi_distances[i], time_leaks[i], fn_ids[i],
-          distance_preds, relative_movement_preds, absolute_movement_preds,
+          floor_waypoint_wifi_distances[i], floor_waypoint_wifi_distances_order[i],
+          sensor_segment_stats[i], time_leaks[i], fn_ids[i], distance_preds,
+          relative_movement_preds, absolute_movement_preds,
           sensor_preds_uncertainties, source_preds, original_preds,
           source_actual, leaderboard_types, ignore_private_test, debug_fn,
           drop_mislabeled_fn_list_valid, copy.copy(w), walls_folder,

@@ -102,9 +102,7 @@ def run(mode, grid_type, consider_multiprocessing):
     sensor_absolute_movement_source = 'relative_movement_v3_test.csv'
     sensor_uncertainties_source = 'uncertainty - test.csv'
     time_leak_source = 'test_edge_positions_v3.csv'
-    
-  wifi_ref_source = wifi_source.replace('- full distances ', '').replace(
-    'pickle', 'csv')
+
   wifi_ref_source = wifi_source.replace(' - full distances', '').replace(
     'pickle', 'csv')
   data_folder = utils.get_data_folder()
@@ -120,20 +118,20 @@ def run(mode, grid_type, consider_multiprocessing):
   wifi_preds_path =  wifi_preds_folder / wifi_source
   source_preds_path = wifi_preds_folder / wifi_ref_source
   sensor_distance_folder = models_folder / 'sensor_distance' / 'predictions'
-  sensor_distance_path =  sensor_distance_folder / sensor_distance_source
+  sensor_distance_path = sensor_distance_folder / sensor_distance_source
   sensor_rel_movement_folder = models_folder / 'sensor_relative_movement' / (
     'predictions')
   sensor_abs_movement_folder = models_folder / 'sensor_absolute_movement' / (
     'predictions')
-  sensor_rel_movement_path =  sensor_rel_movement_folder / (
+  sensor_rel_movement_path = sensor_rel_movement_folder / (
     sensor_relative_movement_source)
-  sensor_abs_movement_path =  sensor_abs_movement_folder / (
+  sensor_abs_movement_path = sensor_abs_movement_folder / (
     sensor_absolute_movement_source)
   time_leak_source_path = data_folder / time_leak_source
   leaderboard_types_path = data_folder / 'leaderboard_type.csv'
   correct_sensor_preds_folder = models_folder / 'correct_sensor_preds' / (
     'predictions')
-  sensor_uncertainties_path =  correct_sensor_preds_folder / (
+  sensor_uncertainties_path = correct_sensor_preds_folder / (
     sensor_uncertainties_source)
   sensor_segment_stats_source = data_folder / 'sensor_data' / 'meta.csv'
   walls_folder = data_folder / 'stashed_walls_intersection_count'
