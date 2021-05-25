@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import pickle
 
+from tqdm import tqdm
+
 import utils
 
 def run():
@@ -89,8 +91,7 @@ def run():
     all_preds['start_time'] = -1
     all_preds['end_time'] = -1
     all_preds.index = np.arange(all_preds.shape[0])
-    for i in range(all_preds.shape[0]):
-      print(f"{i+1} of {all_preds.shape[0]}")
+    for i in tqdm(range(all_preds.shape[0])):
       fn = all_preds.fn.values[i]
       mode = all_preds['mode'].values[i]
       if mode == 'test':

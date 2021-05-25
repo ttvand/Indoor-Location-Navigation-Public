@@ -13,7 +13,7 @@ import os
 
 from PIL import Image
 
-REPO_DATA_FOLDER = Path(__file__).parent.absolute().parent / "Data files"
+REPO_DATA_FOLDER = Path(__file__).parent.absolute().parent / "data"
 
 CONSIDERED_DATA_FOLDERS = [
     # ADD YOUR DATA FOLDER HERE
@@ -903,4 +903,4 @@ def copy_sensor_files():
           for fn in d2.iterdir():
             if fn.is_file():
               pathlib.Path(target_folder).mkdir(parents=True, exist_ok=True)
-              shutil.copy(fn, target_folder / fn.stem)
+              shutil.copy(fn, target_folder)
