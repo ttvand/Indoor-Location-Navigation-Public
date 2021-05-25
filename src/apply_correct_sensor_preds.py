@@ -12,7 +12,7 @@ def run(mode):
   predictions_ext = mode + '.csv'
   
   source_valid_test_predictions = [
-    'relative_movement_v3_valid.csv', 'relative_movement_v3_test_norefit.csv']
+    'relative_movement_v3_valid.csv', 'relative_movement_v3_test.csv']
   source_valid_test_dist_predictions = [
     'distance_valid.csv', 'distance_test.csv']
   fn_mode = 'first_middle_last' if 'first_middle_last' in predictions_ext else (
