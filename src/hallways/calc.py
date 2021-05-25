@@ -89,7 +89,7 @@ floors = {"B1", "F1", "1F", "F2", "2F", "F4", "4F"}
 # floors = {"F4", "4F"}
 # floors = {"F5", "5F"}
 
-np.seterr(all="raise")
+# np.seterr(all="raise")
 
 mode = ("all", "train")[1]
 
