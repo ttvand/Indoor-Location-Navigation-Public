@@ -243,7 +243,7 @@ def run(mode, strategy_id):
       submission.loc[:, 'x'] = merged_predictions[match_rows, 0]
       submission.loc[:, 'y'] = merged_predictions[match_rows, 1]
       
-      save_ext = 'Blend: ' + baseline_grid_source[:-4]
+      save_ext = 'Blend; ' + baseline_grid_source[:-4]
       for s in other_sources:
         save_ext += ('; ' + s[:-4])
       align_ext = " - Align" if align_linear_non_grid else ""
